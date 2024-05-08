@@ -1,8 +1,54 @@
 import { action, cache, redirect } from "@solidjs/router";
-import { validateEmail, validatePassword } from "./utils";
-import { addUser, getUser } from "./db";
-import crypto from 'crypto';
-import { getAuthUser, setAuthOnResponse } from "./auth";
+import { login, register, validateEmail, validatePassword } from "./utils";
+import { answersTable, db, pollsTable, votesTable } from "./db";
+import { getAuthUser, logoutSession } from "./auth";
+import { and, eq } from "drizzle-orm";
+
+export const getPoll = cache(async (id: number) => {
+    'use server';
+
+    const pollRows = await db.select().from(pollsTable).where(eq(pollsTable.id, id)).limit(1);
+    const answersRows = await db.select().from(answersTable).where(eq(answersTable.questionId, pollRows[0].id));
+    const answersWithVotes = await Promise.all(answersRows.map(async answerRow => {
+        const votesRows = await db.select().from(votesTable).where(eq(votesTable.answerId, answerRow.id));
+        return {
+            ...answerRow,
+            votes: votesRows.length
+        }
+    }));
+
+    return {
+        poll: pollRows[0],
+        answers: answersWithVotes
+    }
+}, 'get-poll');
+
+export const getUser = cache(async () => {
+    "use server";
+
+    const userId = await getAuthUser();
+
+    return userId;
+}, "get-user");
+
+
+export const vote = action(async (questionId: number, answerId: number) => {
+    "use server";
+    const userId = await getAuthUser();
+
+    const votesRows = await db.select().from(votesTable).where(
+        and(eq(votesTable.userId, userId), eq(votesTable.questionId, questionId)))
+
+    if (votesRows.length > 0) {
+        return new Error('Already voted');
+    }
+
+    await db.insert(votesTable).values({
+        questionId,
+        userId,
+        answerId,
+    });
+}, "vote");
 
 export const loginOrRegister = action(async (formData: FormData) => {
     'use server';
@@ -14,35 +60,46 @@ export const loginOrRegister = action(async (formData: FormData) => {
     let error = validateEmail(email) || validatePassword(password);
     if (error) return new Error(error);
 
-    let user;
-
     if (action === 'login') {
-        user = await getUser(email);
-
-        const passwordHash = crypto
-            .pbkdf2Sync(password, String(user?.passwordSalt), 1000, 64, "sha256")
-            .toString("hex");
-
-        if (user?.passwordHash !== passwordHash) {
-            return new Error('Invalid login credentails')
-        }
+        await login(email, password);
     } else if (action === 'register') {
-        user = await addUser(email, password);
+        await register(email, password)
     }
 
-    if (!user) return new Error('No user found');
 
-    await setAuthOnResponse(String(user.id));
+    return redirect("/admin/polls");
 
-    return redirect("/polls");
 }, 'login-or-register');
 
-export const redirectIfLoggedIn = cache(async () => {
+
+export const addPoll = action(async (formData: FormData) => {
     "use server";
 
-    let userId = await getAuthUser();
-    if (userId) {
-        return redirect("/polls");
-    }
-    return null;
-}, "loggedIn");
+    const userId = await getAuthUser();
+    const question = String(formData.get('question'));
+    const answers = formData.getAll('answers');
+
+    const poll = await db.insert(pollsTable).values({
+        question,
+        userId
+    });
+
+    answers.forEach(async answer => {
+        await db.insert(answersTable).values({
+            questionId: Number(poll.lastInsertRowid),
+            text: String(answer)
+        })
+    })
+
+    return redirect('/poll/' + poll.lastInsertRowid);
+}, "add-poll");
+
+
+export const logout = action(async () => {
+    "use server";
+
+    await logoutSession();
+
+    return redirect('/');
+}, "loggedOut");
+

@@ -1,5 +1,5 @@
 {
-  "name": "example-with-tailwindcss",
+  "name": "solid-poll",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",

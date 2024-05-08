@@ -11,8 +11,11 @@ export default function App() {
       root={props => (
         <>
           <main class="mx-auto text-gray-700 p-4">
-            <h1 class="text-3xl font-bold pb-6 text-center">Solid Live Poll</h1>
-            <Suspense>{props.children}</Suspense>
+            <h1 class="text-3xl font-bold pb-6 text-center">Solid Poll</h1>
+
+            <div class="grid w-full max-w-sm items-center gap-3 mx-auto">
+              <Suspense>{props.children}</Suspense>
+            </div>
           </main>
         </>
       )}
