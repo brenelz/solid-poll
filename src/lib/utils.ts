@@ -47,10 +47,18 @@ export async function login(email: string, password: string) {
   if (!user) return new Error('No user found');
 
   await setAuthOnResponse(String(user.id));
+
+  return redirect("/admin/polls");
 }
 
 export async function register(email: string, password: string) {
   "use server";
+
+  const userRows = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1)
+  if (userRows.length > 0) {
+    return new Error('User already exists.')
+  }
+
   const passwordSalt = crypto.randomBytes(16).toString("hex");
   const passwordHash = crypto
     .pbkdf2Sync(password, passwordSalt, 1000, 64, "sha256")
@@ -63,4 +71,6 @@ export async function register(email: string, password: string) {
   })
 
   await setAuthOnResponse(String(user.lastInsertRowid));
+
+  return redirect("/admin/polls");
 }

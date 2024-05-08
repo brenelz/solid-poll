@@ -1,6 +1,6 @@
 import { action, cache, redirect } from "@solidjs/router";
 import { login, register, validateEmail, validatePassword } from "./utils";
-import { answersTable, db, pollsTable, votesTable } from "./db";
+import { answersTable, db, pollsTable, usersTable, votesTable } from "./db";
 import { getAuthUser, logoutSession } from "./auth";
 import { and, eq } from "drizzle-orm";
 
@@ -25,6 +25,16 @@ export const getPoll = cache(async (id: number) => {
         totalVotes
     }
 }, 'get-poll');
+
+export const getPolls = cache(async () => {
+    "use server";
+
+    const userId = await getAuthUser();
+
+    const pollRows = await db.select().from(pollsTable).where(eq(pollsTable.userId, userId));
+
+    return pollRows;
+}, "get-polls");
 
 export const getUser = cache(async () => {
     "use server";
@@ -64,13 +74,10 @@ export const loginOrRegister = action(async (formData: FormData) => {
     if (error) return new Error(error);
 
     if (action === 'login') {
-        await login(email, password);
+        return login(email, password);
     } else if (action === 'register') {
-        await register(email, password)
+        return register(email, password)
     }
-
-
-    return redirect("/admin/polls");
 
 }, 'login-or-register');
 

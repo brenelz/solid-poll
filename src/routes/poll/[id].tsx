@@ -26,7 +26,7 @@ export default function Poll({ params }: RouteSectionProps) {
                     {(answer) => (
                         <Progress value={answer.votes / pollData()?.totalVotes * 100}>
                             <div class="flex justify-between py-2">
-                                <button onClick={() => voteAction(answer.questionId, answer.id)}>
+                                <button class="flex-1 text-left" onClick={() => voteAction(answer.questionId, answer.id)}>
                                     {answer.text}
                                 </button>
                                 <span>({answer.votes} of {pollData()?.totalVotes} votes)</span>
