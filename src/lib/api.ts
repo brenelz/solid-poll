@@ -9,8 +9,10 @@ export const getPoll = cache(async (id: number) => {
 
     const pollRows = await db.select().from(pollsTable).where(eq(pollsTable.id, id)).limit(1);
     const answersRows = await db.select().from(answersTable).where(eq(answersTable.questionId, pollRows[0].id));
+    let totalVotes = 0;
     const answersWithVotes = await Promise.all(answersRows.map(async answerRow => {
         const votesRows = await db.select().from(votesTable).where(eq(votesTable.answerId, answerRow.id));
+        totalVotes += votesRows.length;
         return {
             ...answerRow,
             votes: votesRows.length
@@ -19,7 +21,8 @@ export const getPoll = cache(async (id: number) => {
 
     return {
         poll: pollRows[0],
-        answers: answersWithVotes
+        answers: answersWithVotes,
+        totalVotes
     }
 }, 'get-poll');
 
