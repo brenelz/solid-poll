@@ -3,7 +3,8 @@ import { createAsync, useNavigate, useSubmission } from "@solidjs/router";
 import { Button } from "~/components/ui/button";
 import { Callout, CalloutTitle } from "~/components/ui/callout";
 import { Input } from "~/components/ui/input";
-import { getUser, loginOrRegister } from "~/lib/api";
+import { loginOrRegister } from "~/lib/actions";
+import { getUser } from "~/lib/data"
 
 export default function Home() {
   const user = createAsync(() => getUser(), { deferStream: true });

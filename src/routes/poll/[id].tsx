@@ -2,7 +2,8 @@ import { Navigate, RouteSectionProps, createAsync, useAction, useNavigate, useSu
 import { For, Show, createEffect } from "solid-js";
 import { Callout, CalloutTitle } from "~/components/ui/callout";
 import { Progress } from "~/components/ui/progress";
-import { getPoll, getUser, vote } from "~/lib/api";
+import { vote } from "~/lib/actions";
+import { getPoll, getUser } from "~/lib/data";
 
 export default function Poll({ params }: RouteSectionProps) {
     const navigate = useNavigate();

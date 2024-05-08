@@ -2,7 +2,8 @@ import { createAsync, useAction, useNavigate } from "@solidjs/router";
 import { For, Show, createEffect, createSignal } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { addPoll, getPolls, getUser, logout } from "~/lib/api";
+import { addPoll, logout } from "~/lib/actions";
+import { getPolls, getUser } from '~/lib/data'
 
 export default function Polls() {
     const navigate = useNavigate();
