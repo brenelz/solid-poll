@@ -12,15 +12,17 @@ export const vote = action(async (questionId: number, answerId: number) => {
     const votesRows = await db.select().from(votesTable).where(
         and(eq(votesTable.userId, userId), eq(votesTable.questionId, questionId)))
 
-    if (votesRows.length > 0) {
-        return new Error('Already voted');
-    }
+    // if (votesRows.length > 0) {
+    //     return new Error('Already voted');
+    // }
 
     await db.insert(votesTable).values({
         questionId,
         userId,
         answerId,
     });
+
+    return answerId;
 }, "vote");
 
 export const loginOrRegister = action(async (formData: FormData) => {

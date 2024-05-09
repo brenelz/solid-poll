@@ -5,6 +5,7 @@
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
+    "pk:dev": "partykit dev",
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio"
   },
@@ -23,13 +24,15 @@
     "tailwindcss-animate": "^1.0.7",
     "vinxi": "^0.3.11",
     "better-sqlite3": "^9.6.0",
-    "drizzle-orm": "^0.30.10"
+    "drizzle-orm": "^0.30.10",
+    "partysocket": "1.0.1"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
     "drizzle-kit": "^0.20.17",
-    "@types/better-sqlite3": "^7.6.10"
+    "@types/better-sqlite3": "^7.6.10",
+    "partykit": "0.0.104"
   }
 }

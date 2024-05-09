@@ -1,5 +1,7 @@
-import { Navigate, RouteSectionProps, createAsync, useAction, useNavigate, useSubmission } from "@solidjs/router";
+import { RouteSectionProps, createAsync, createAsyncStore, useAction, useNavigate, useSubmission } from "@solidjs/router";
+import PartySocket from "partysocket";
 import { For, Show, createEffect } from "solid-js";
+import { createStore } from "solid-js/store";
 import { Callout, CalloutTitle } from "~/components/ui/callout";
 import { Progress } from "~/components/ui/progress";
 import { vote } from "~/lib/actions";
@@ -8,9 +10,20 @@ import { getPoll, getUser } from "~/lib/data";
 export default function Poll({ params }: RouteSectionProps) {
     const navigate = useNavigate();
     const user = createAsync(() => getUser(), { deferStream: true });
-    const pollData = createAsync(() => getPoll(+params.id))
+    const pollDataFromServer = createAsyncStore(() => getPoll(+params.id))
     const voteAction = useAction(vote);
     const voteSubmission = useSubmission(vote);
+    const [pollData, setPollData] = createStore(pollDataFromServer()!);
+
+    const ws = new PartySocket({
+        host: "localhost:1999",
+        room: "poll-" + pollData?.poll.id,
+    });
+
+    ws.addEventListener('message', (event) => {
+        const message = JSON.parse(event.data);
+        setPollData(message);
+    })
 
     createEffect(() => {
         if (user() === null) {
@@ -20,22 +33,26 @@ export default function Poll({ params }: RouteSectionProps) {
 
     return (
         <Show when={user()} fallback="Loading...">
-            <Show when={pollData()?.poll} fallback={<h2 class="text-xl">No poll found.</h2>}>
-                <h2 class="text-xl">{pollData()?.poll.question}</h2>
+            <Show when={pollData?.poll} fallback={<h2 class="text-xl">No poll found.</h2>}>
+                <h2 class="text-xl">{pollData?.poll.question}</h2>
                 <hr />
-                <For each={pollData()?.answers}>
+                <For each={pollData?.answers}>
                     {(answer) => (
-                        <Progress value={answer.votes / pollData()!?.totalVotes * 100}>
+                        <Progress value={answer.votes / pollData!?.totalVotes * 100}>
                             <div class="flex justify-between py-2">
-                                <button class="flex-1 text-left" onClick={() => voteAction(answer.questionId, answer.id)}>
+                                <button class="flex-1 text-left" onClick={async () => {
+                                    const answerId = await voteAction(answer.questionId, answer.id);
+
+                                    ws.send(JSON.stringify({ type: "vote", pollData: pollData, answerId }));
+                                }}>
                                     {answer.text}
                                 </button>
-                                <span>({answer.votes} of {pollData()?.totalVotes} votes)</span>
+                                <span>({answer.votes} of {pollData?.totalVotes} votes)</span>
                             </div>
                         </Progress>
                     )}
                 </For>
-                {voteSubmission.result && (
+                {voteSubmission.result instanceof Error && (
                     <Callout variant="error">
                         <CalloutTitle>{voteSubmission.result.message}</CalloutTitle>
                     </Callout>
