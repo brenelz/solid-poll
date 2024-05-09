@@ -10,7 +10,7 @@ export default function PollAnswer(props: any) {
             <div class="flex justify-between py-2">
                 <button class="flex-1 text-left" onClick={async () => {
                     const answerId = await voteAction(props.answer.questionId, props.answer.id);
-
+                    await new Promise(r => setTimeout(r, 1000)); // waiting for props.pollData to update
                     props.ws?.send(JSON.stringify({ type: "vote", pollData: props.pollData, answerId }));
                 }}>
                     {props.answer.text}

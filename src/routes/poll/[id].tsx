@@ -19,19 +19,20 @@ export default function Poll(props: RouteSectionProps) {
     const user = createAsync(() => getUser(), { deferStream: true });
     const pollDataFromServer = createAsyncStore(() => getPoll(+props.params.id), { deferStream: true })
     const voteSubmission = useSubmission(vote);
-    const [pollData, setPollData] = createStore(pollDataFromServer);
+    const [pollData, setPollData] = createStore(pollDataFromServer()!);
 
-    const ws = createMemo(() => {
-        if (!pollData()?.poll.id) return null;
+    const ws = createMemo((prev) => {
+        if (prev) return prev;
+        if (!pollData?.poll?.id) return null;
 
         const partySocket = new PartySocket({
             // host: "localhost:1999",
             host: 'solid-poll-party.brenelz.partykit.dev',
-            room: "poll-" + pollData()?.poll?.id,
+            room: "poll-" + pollData?.poll?.id,
         });
 
-        partySocket?.addEventListener('message', (event) => {
-            const message = JSON.parse(event.data);
+        partySocket?.addEventListener('message', async (event) => {
+            const message = JSON.parse(event.data) as { totalVotes: number };
             setPollData(message);
         });
 
@@ -39,6 +40,7 @@ export default function Poll(props: RouteSectionProps) {
     });
 
     createEffect(() => {
+        setPollData(pollDataFromServer()!);
         if (user() === null) {
             navigate("/", { replace: true });
         }
@@ -46,11 +48,11 @@ export default function Poll(props: RouteSectionProps) {
 
     return (
         <Show when={user()} fallback="Loading...">
-            <Show when={pollData()?.poll} fallback={<h2 class="text-xl">No poll found.</h2>}>
-                <h2 class="text-xl">{pollData()?.poll.question}</h2>
+            <Show when={pollData?.poll} fallback={<h2 class="text-xl">No poll found.</h2>}>
+                <h2 class="text-xl">{pollData?.poll.question}</h2>
                 <hr />
-                <For each={pollData()?.answers}>
-                    {answer => <PollAnswer answer={answer} pollData={pollData()} ws={ws()} />}
+                <For each={pollData?.answers}>
+                    {answer => <PollAnswer answer={answer} pollData={pollData} ws={ws()} />}
                 </For>
                 {voteSubmission.result instanceof Error && (
                     <Callout variant="error">
