@@ -7,8 +7,7 @@ export default class Server implements Party.Server {
     const event = JSON.parse(message);
 
     if (event.type === "vote") {
-      const pollData = event.pollData;
-      this.room.broadcast(JSON.stringify(pollData));
+      this.room.broadcast(JSON.stringify(event.pollData));
     }
   }
 }
