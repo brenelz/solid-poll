@@ -12,27 +12,28 @@
   "dependencies": {
     "@fontsource/inter": "^5.0.18",
     "@kobalte/core": "^0.13.1",
+    "@libsql/client": "^0.6.0",
     "@solidjs/router": "^0.13.3",
     "@solidjs/start": "^1.0.0-rc.1",
     "autoprefixer": "^10.4.19",
+    "better-sqlite3": "^9.6.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.30.10",
+    "partysocket": "1.0.1",
     "postcss": "^8.4.38",
     "solid-js": "^1.8.17",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
-    "vinxi": "^0.3.11",
-    "better-sqlite3": "^9.6.0",
-    "drizzle-orm": "^0.30.10",
-    "partysocket": "1.0.1"
+    "vinxi": "^0.3.11"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.20.17",
     "@types/better-sqlite3": "^7.6.10",
+    "drizzle-kit": "^0.20.17",
     "partykit": "0.0.104"
   }
 }
