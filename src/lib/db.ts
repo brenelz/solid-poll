@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/better-sqlite3';
+import { drizzle } from 'drizzle-orm/libsql';
 import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
 import { createClient } from '@libsql/client';
 
