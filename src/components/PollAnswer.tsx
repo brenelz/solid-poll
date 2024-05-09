@@ -11,7 +11,7 @@ export default function PollAnswer(props: any) {
                 <button class="flex-1 text-left" onClick={async () => {
                     const answerId = await voteAction(props.answer.questionId, props.answer.id);
 
-                    props.ws.send(JSON.stringify({ type: "vote", pollData: props.pollData, answerId }));
+                    props.ws?.send(JSON.stringify({ type: "vote", pollData: props.pollData, answerId }));
                 }}>
                     {props.answer.text}
                 </button>

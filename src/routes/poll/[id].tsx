@@ -1,6 +1,6 @@
 import { RouteDefinition, RouteSectionProps, createAsync, createAsyncStore, useAction, useNavigate, useSubmission } from "@solidjs/router";
 import PartySocket from "partysocket";
-import { For, Show, createEffect } from "solid-js";
+import { For, Show, createEffect, createMemo } from "solid-js";
 import { createStore } from "solid-js/store";
 import PollAnswer from "~/components/PollAnswer";
 import { Callout, CalloutTitle } from "~/components/ui/callout";
@@ -21,16 +21,22 @@ export default function Poll(props: RouteSectionProps) {
     const voteSubmission = useSubmission(vote);
     const [pollData, setPollData] = createStore(pollDataFromServer);
 
-    const ws = new PartySocket({
-        // host: "localhost:1999",
-        host: 'solid-poll-party.brenelz.partykit.dev',
-        room: "poll-" + pollData()?.poll?.id,
-    });
+    const ws = createMemo(() => {
+        if (!pollData()?.poll.id) return null;
 
-    ws.addEventListener('message', (event) => {
-        const message = JSON.parse(event.data);
-        setPollData(message);
-    })
+        const partySocket = new PartySocket({
+            // host: "localhost:1999",
+            host: 'solid-poll-party.brenelz.partykit.dev',
+            room: "poll-" + pollData()?.poll?.id,
+        });
+
+        partySocket?.addEventListener('message', (event) => {
+            const message = JSON.parse(event.data);
+            setPollData(message);
+        });
+
+        return partySocket;
+    });
 
     createEffect(() => {
         if (user() === null) {
@@ -44,7 +50,7 @@ export default function Poll(props: RouteSectionProps) {
                 <h2 class="text-xl">{pollData()?.poll.question}</h2>
                 <hr />
                 <For each={pollData()?.answers}>
-                    {answer => <PollAnswer answer={answer} pollData={pollData()} ws={ws} />}
+                    {answer => <PollAnswer answer={answer} pollData={pollData()} ws={ws()} />}
                 </For>
                 {voteSubmission.result instanceof Error && (
                     <Callout variant="error">
