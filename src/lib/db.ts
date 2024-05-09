@@ -1,6 +1,10 @@
+// import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { drizzle } from 'drizzle-orm/libsql';
 import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
 import { createClient } from '@libsql/client';
+//import Database from 'better-sqlite3';
+
+// const client = new Database('./db/sqlite.db')
 
 const client = createClient({
     url: process.env.TURSO_CONNECTION_URL!,
