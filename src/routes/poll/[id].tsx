@@ -19,12 +19,12 @@ export default function Poll(props: RouteSectionProps) {
     const user = createAsync(() => getUser(), { deferStream: true });
     const pollDataFromServer = createAsyncStore(() => getPoll(+props.params.id), { deferStream: true })
     const voteSubmission = useSubmission(vote);
-    const [pollData, setPollData] = createStore(pollDataFromServer()!);
+    const [pollData, setPollData] = createStore(pollDataFromServer);
 
     const ws = new PartySocket({
         // host: "localhost:1999",
         host: 'solid-poll-party.brenelz.partykit.dev',
-        room: "poll-" + pollData?.poll?.id,
+        room: "poll-" + pollData()?.poll?.id,
     });
 
     ws.addEventListener('message', (event) => {
@@ -40,11 +40,11 @@ export default function Poll(props: RouteSectionProps) {
 
     return (
         <Show when={user()} fallback="Loading...">
-            <Show when={pollData?.poll} fallback={<h2 class="text-xl">No poll found.</h2>}>
-                <h2 class="text-xl">{pollData?.poll.question}</h2>
+            <Show when={pollData()?.poll} fallback={<h2 class="text-xl">No poll found.</h2>}>
+                <h2 class="text-xl">{pollData()?.poll.question}</h2>
                 <hr />
-                <For each={pollData?.answers}>
-                    {answer => <PollAnswer answer={answer} pollData={pollData} ws={ws} />}
+                <For each={pollData()?.answers}>
+                    {answer => <PollAnswer answer={answer} pollData={pollData()} ws={ws} />}
                 </For>
                 {voteSubmission.result instanceof Error && (
                     <Callout variant="error">
