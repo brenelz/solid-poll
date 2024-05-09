@@ -1,7 +1,14 @@
-import { createAsync, useNavigate } from "@solidjs/router";
+import { RouteDefinition, createAsync, useNavigate } from "@solidjs/router";
 import { For, Show, createEffect } from "solid-js";
 import CreatePollForm from "~/components/CreatePollForm";
-import { getPolls, getUser } from '~/lib/data'
+import { getPolls, getUser } from '~/lib/data';
+
+export const route = {
+    load: () => {
+        void getUser();
+        void getPolls();
+    }
+} satisfies RouteDefinition
 
 export default function Polls() {
     const navigate = useNavigate();

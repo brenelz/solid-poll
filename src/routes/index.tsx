@@ -1,10 +1,16 @@
 
-import { createAsync, useNavigate, useSubmission } from "@solidjs/router";
+import { RouteDefinition, createAsync, useNavigate, useSubmission } from "@solidjs/router";
 import { Button } from "~/components/ui/button";
 import { Callout, CalloutTitle } from "~/components/ui/callout";
 import { Input } from "~/components/ui/input";
 import { loginOrRegister } from "~/lib/actions";
 import { getUser } from "~/lib/data"
+
+export const route = {
+  load: () => {
+    void getUser();
+  }
+} satisfies RouteDefinition
 
 export default function Home() {
   const user = createAsync(() => getUser(), { deferStream: true });

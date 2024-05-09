@@ -1,4 +1,4 @@
-import { RouteSectionProps, createAsync, createAsyncStore, useAction, useNavigate, useSubmission } from "@solidjs/router";
+import { RouteDefinition, RouteSectionProps, createAsync, createAsyncStore, useAction, useNavigate, useSubmission } from "@solidjs/router";
 import PartySocket from "partysocket";
 import { For, Show, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
@@ -7,10 +7,17 @@ import { Callout, CalloutTitle } from "~/components/ui/callout";
 import { vote } from "~/lib/actions";
 import { getPoll, getUser } from "~/lib/data";
 
-export default function Poll({ params }: RouteSectionProps) {
+export const route = {
+    load: ({ params }) => {
+        void getUser();
+        void getPoll(+params.id);
+    }
+} satisfies RouteDefinition
+
+export default function Poll(props: RouteSectionProps) {
     const navigate = useNavigate();
     const user = createAsync(() => getUser(), { deferStream: true });
-    const pollDataFromServer = createAsyncStore(() => getPoll(+params.id))
+    const pollDataFromServer = createAsyncStore(() => getPoll(+props.params.id), { deferStream: true })
     const voteSubmission = useSubmission(vote);
     const [pollData, setPollData] = createStore(pollDataFromServer()!);
 
