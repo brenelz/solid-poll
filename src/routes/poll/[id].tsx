@@ -22,7 +22,8 @@ export default function Poll(props: RouteSectionProps) {
     const [pollData, setPollData] = createStore(pollDataFromServer()!);
 
     const ws = new PartySocket({
-        host: "localhost:1999",
+        // host: "localhost:1999",
+        host: 'solid-poll-party.brenelz.partykit.dev',
         room: "poll-" + pollData?.poll?.id,
     });
 
