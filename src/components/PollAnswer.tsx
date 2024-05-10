@@ -1,8 +1,17 @@
 import { useAction } from "@solidjs/router";
+import PartySocket from "partysocket";
+import { createEffect } from "solid-js";
 import { Progress } from "~/components/ui/progress";
 import { vote } from "~/lib/actions";
+import { PollData } from "~/lib/data";
 
-export default function PollAnswer(props: any) {
+type PollAnswerProps = {
+    pollData: PollData;
+    answer: PollData['answers'][number];
+    ws: PartySocket | null;
+}
+
+export default function PollAnswer(props: PollAnswerProps) {
     const voteAction = useAction(vote);
 
     return (

@@ -1,4 +1,5 @@
 import type * as Party from "partykit/server";
+import { PollData } from "~/lib/data";
 
 export default class Server implements Party.Server {
   constructor(readonly room: Party.Room) { }
@@ -7,7 +8,8 @@ export default class Server implements Party.Server {
     const event = JSON.parse(message);
 
     if (event.type === "vote") {
-      this.room.broadcast(JSON.stringify(event.pollData));
+      const pollData = event.pollData as PollData;
+      this.room.broadcast(JSON.stringify(pollData));
     }
   }
 }

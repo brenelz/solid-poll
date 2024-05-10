@@ -1,9 +1,15 @@
 import { For, createMemo } from "solid-js";
 import PollAnswer from "./PollAnswer";
 import PartySocket from "partysocket";
+import { PollData } from "~/lib/data";
 
-export default function PollAnswers(props: any) {
-    const ws = createMemo((prev) => {
+type PollAnswersProps = {
+    pollData: PollData
+    updatePollData: (data: PollData) => void
+}
+
+export default function PollAnswers(props: PollAnswersProps) {
+    const ws = createMemo<PartySocket | null>((prev) => {
         if (prev) return prev;
         if (!props.pollData?.poll?.id) return null;
 
@@ -14,7 +20,7 @@ export default function PollAnswers(props: any) {
         });
 
         partySocket?.addEventListener('message', async (event) => {
-            const message = JSON.parse(event.data);
+            const message = JSON.parse(event.data) as PollData;
             props.updatePollData(message);
         });
 

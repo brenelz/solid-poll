@@ -4,7 +4,7 @@ import { Show, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Callout, CalloutTitle } from "~/components/ui/callout";
 import { vote } from "~/lib/actions";
-import { getPoll, getUser } from "~/lib/data";
+import { PollData, getPoll, getUser } from "~/lib/data";
 
 const PollAnswers = clientOnly(() => import('../../components/PollAnswers'));
 
@@ -22,7 +22,7 @@ export default function Poll(props: RouteSectionProps) {
     const voteSubmission = useSubmission(vote);
     const [pollData, setPollData] = createStore(pollDataFromServer()!);
 
-    const updatePollData = (data: any) => {
+    const updatePollData = (data: PollData) => {
         setPollData(data);
     };
 

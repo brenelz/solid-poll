@@ -3,6 +3,8 @@ import { answersTable, db, pollsTable, votesTable } from "./db";
 import { getAuthUser } from "./auth";
 import { eq } from "drizzle-orm";
 
+export type PollData = Awaited<ReturnType<typeof getPoll>>;
+
 export const getPoll = cache(async (id: number) => {
     'use server';
 
