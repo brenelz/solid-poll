@@ -4,6 +4,7 @@ import { answersTable, db, pollsTable, usersTable, votesTable } from "./db";
 import { getAuthUser, logoutSession, setAuthOnResponse } from "./auth";
 import { and, eq } from "drizzle-orm";
 import crypto from 'crypto';
+import { getPoll } from "./data";
 
 export const vote = action(async (questionId: number, answerId: number) => {
     "use server";
@@ -22,7 +23,7 @@ export const vote = action(async (questionId: number, answerId: number) => {
         answerId,
     });
 
-    return answerId;
+    return getPoll(questionId);
 }, "vote");
 
 export const loginOrRegister = action(async (formData: FormData) => {
